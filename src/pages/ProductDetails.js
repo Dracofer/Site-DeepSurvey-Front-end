@@ -7,6 +7,9 @@ export default function ProductDetails() {
   const [p, setP] = useState(null);
   const nav = useNavigate();
 
+  const [currentImage, setCurrentImage] = useState(null);
+  const [zoomImage, setZoomImage] = useState(null); // <-- zoom modal
+
   useEffect(() => {
     load();
   }, [id]);
@@ -15,6 +18,13 @@ export default function ProductDetails() {
     try {
       const r = await api.get("/products/" + id);
       setP(r.data);
+
+      // Define a imagem principal
+      const mainImg = r.data.imageUrl?.startsWith("http")
+        ? r.data.imageUrl
+        : `/images/${r.data.imageUrl}`;
+
+      setCurrentImage(mainImg);
     } catch (e) {
       console.error(e);
     }
@@ -22,15 +32,12 @@ export default function ProductDetails() {
 
   async function add() {
     try {
-      // Criar sessionId caso não exista
       let sessionId = localStorage.getItem("sessionId");
-
       if (!sessionId) {
         sessionId = crypto.randomUUID();
         localStorage.setItem("sessionId", sessionId);
       }
 
-      // Enviar para o carrinho sem login
       await api.post("/cart/add", {
         sessionId: sessionId,
         product: { id: p.id },
@@ -46,27 +53,74 @@ export default function ProductDetails() {
 
   if (!p) return <div className="container">Carregando...</div>;
 
+  // Todas as imagens do produto
+  const mainImg = p.imageUrl?.startsWith("http")
+    ? p.imageUrl
+    : `/images/${p.imageUrl}`;
+
+  const extraImages = Array.isArray(p.images)
+    ? p.images.map((img) =>
+        img.startsWith("http") ? img : `/images/${img}`
+      )
+    : [];
+
+  const gallery = [mainImg, ...extraImages];
+
   return (
     <div
       className="container"
       style={{
         display: "flex",
         alignItems: "flex-start",
-        gap: 30,
+        gap: 40,
         paddingTop: 40,
       }}
     >
-      <img
-        src={p.imageUrl ? `/images/${p.imageUrl}` : "https://via.placeholder.com/600"}
-        alt={p.name}
-        style={{
-          width: 420,
-          height: 420,
-          objectFit: "cover",
-          borderRadius: 10,
-        }}
-      />
+      {/* CARROSSEL DE IMAGENS */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {/* IMAGEM PRINCIPAL */}
+        <img
+          src={currentImage}
+          onClick={() => setZoomImage(currentImage)} // <-- abre zoom
+          alt={p.name}
+          style={{
+            width: 420,
+            height: 420,
+            objectFit: "contain",
+            borderRadius: 10,
+            cursor: "zoom-in",
+            transition: "0.2s",
+            background: "#fff"
+          }}
+        />
 
+        {/* MINIATURAS */}
+        <div style={{ display: "flex", gap: 10 }}>
+          {gallery.map((img, i) => (
+            <img
+              key={i}
+              src={img}
+              onClick={() => setCurrentImage(img)} // <-- troca imagem principal
+              alt=""
+              style={{
+                width: 80,
+                height: 80,
+                objectFit: "contain",
+                borderRadius: 6,
+                border:
+                  img === currentImage
+                    ? "2px solid #0a7cff"
+                    : "1px solid #ccc",
+                cursor: "pointer",
+                background: "#fff",
+                padding: 3
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* DETALHES DO PRODUTO */}
       <div style={{ flex: 1 }}>
         <h2 style={{ fontSize: 28, fontWeight: 700 }}>{p.name}</h2>
 
@@ -82,14 +136,7 @@ export default function ProductDetails() {
           R$ {p.price?.toFixed(2).replace(".", ",")}
         </div>
 
-        <p
-          style={{
-            fontSize: 16,
-            color: "#555",
-            lineHeight: "22px",
-            maxWidth: 500,
-          }}
-        >
+        <p style={{ fontSize: 16, color: "#555", lineHeight: "22px" }}>
           {p.description}
         </p>
 
@@ -108,6 +155,35 @@ export default function ProductDetails() {
           Adicionar à sacola
         </button>
       </div>
+
+      {/* MODAL DE ZOOM */}
+      {zoomImage && (
+        <div
+          onClick={() => setZoomImage(null)}
+          style={{
+            position: "fixed",
+            top: 0, left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.8)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: "zoom-out",
+            zIndex: 9999
+          }}
+        >
+          <img
+            src={zoomImage}
+            alt="Zoom"
+            style={{
+              maxWidth: "90%",
+              maxHeight: "90%",
+              borderRadius: 10
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

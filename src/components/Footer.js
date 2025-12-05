@@ -1,8 +1,20 @@
 import React from "react";
-export default function Footer(){
+import { useStoreConfig } from "../context/StoreConfigContext";
+
+export default function Footer() {
+  const { cfg } = useStoreConfig();
+
   return (
-    <footer className="footer">
-      <div>Rua Sônia Maria F. de Andrade, Nº 69, Bairro: Jardim Novo Horizonte, CEP: 06604-130, Jandira/São Paulo</div>
+    <footer
+      className="footer"
+      style={{
+        padding: 20,
+        textAlign: "center",
+        background: cfg?.themeColor || "#2c2b6e",
+        color: "white"
+      }}
+    >
+      {cfg?.addressText || "Endereço da loja não configurado"}
     </footer>
   );
 }

@@ -42,16 +42,20 @@ export default function Offers() {
             }}
           >
             <img
-              src={`/images/${p.imageUrl}`}
-              alt=""
-              style={{
-                width: "100%",
-                height: 180,
-                objectFit: "cover",
-                borderRadius: 8,
-                marginBottom: 10,
-              }}
-            />
+  src={
+    p.imageUrl.startsWith("http")
+      ? p.imageUrl
+      : `/images/${p.imageUrl}`
+  }
+  alt={p.name}
+  style={{
+    width: "100%",
+    height: 180,
+    objectFit: "cover",
+    borderRadius: 8,
+    marginBottom: 10,
+  }}
+/>
 
             <h4 style={{ margin: "6px 0", fontSize: 18 }}>{p.name}</h4>
 

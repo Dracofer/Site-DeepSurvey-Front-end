@@ -4,11 +4,16 @@ import { Link, useNavigate } from "react-router-dom";
 export default function ProductCard({ p }) {
   const nav = useNavigate();
 
-  return (
-    <div style={{ position: "relative" }} className="card">
+  const imgSrc = p.imageUrl
+    ? (p.imageUrl.startsWith("http")
+        ? p.imageUrl
+        : `/images/${p.imageUrl}`)
+    : "/images/placeholder.jpeg";
 
-      {/* Selo de oferta */}
-      {p.onSale === true && (
+  return (
+    <div className="card" style={{ position: "relative" }}>
+      
+      {p.onSale && (
         <div
           style={{
             position: "absolute",
@@ -19,7 +24,7 @@ export default function ProductCard({ p }) {
             padding: "4px 8px",
             borderRadius: 6,
             fontWeight: "bold",
-            fontSize: 12,
+            fontSize: 12
           }}
         >
           Oferta
@@ -28,35 +33,32 @@ export default function ProductCard({ p }) {
 
       <Link to={`/produto/${p.id}`} style={{ width: "100%" }}>
         <img
-          className="img"
-          src={p.imageUrl ? `/images/${p.imageUrl}` : "/images/placeholder.jpeg"}
+          src={imgSrc}
           alt={p.name}
+          style={{
+            width: "100%",
+            height: 200,
+            objectFit: "contain",
+            padding: 10,
+            borderRadius: 12
+          }}
         />
         <h3>{p.name}</h3>
       </Link>
 
-      {/* Preço */}
       <div className="price" style={{ margin: "10px 0" }}>
         {p.onSale ? (
           <>
-            <span
-              style={{
-                color: "red",
-                fontWeight: "bold",
-                marginRight: 8,
-                fontSize: 18,
-              }}
-            >
+            <span style={{ color: "red", fontWeight: "bold", fontSize: 18 }}>
               R$ {p.salePrice.toFixed(2).replace(".", ",")}
             </span>
 
-            <span
-              style={{
-                textDecoration: "line-through",
-                color: "#777",
-                fontSize: 14,
-              }}
-            >
+            <span style={{
+              marginLeft: 8,
+              textDecoration: "line-through",
+              color: "#777",
+              fontSize: 14
+            }}>
               R$ {p.price.toFixed(2).replace(".", ",")}
             </span>
           </>
@@ -67,10 +69,7 @@ export default function ProductCard({ p }) {
         )}
       </div>
 
-      <button
-        className="btn"
-        onClick={() => nav(`/produto/${p.id}`)}
-      >
+      <button className="btn" onClick={() => nav(`/produto/${p.id}`)}>
         Comprar
       </button>
     </div>

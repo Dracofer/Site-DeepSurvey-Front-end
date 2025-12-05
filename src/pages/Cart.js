@@ -16,7 +16,6 @@ export default function Cart() {
     setItems(r.data);
   }
 
-  // Atualizar quantidade
   async function updateQty(id, newQty) {
     if (newQty < 1) return;
 
@@ -28,7 +27,6 @@ export default function Cart() {
     load();
   }
 
-  // Remover item
   async function removeItem(id) {
     await api.post("/cart/remove", { itemId: id });
     load();
@@ -63,7 +61,11 @@ export default function Cart() {
           }}
         >
           <img
-            src={`/images/${item.product.imageUrl}`}
+            src={
+              item.product.imageUrl?.startsWith("http")
+                ? item.product.imageUrl
+                : `/images/${item.product.imageUrl}`
+            }
             alt=""
             style={{
               width: 120,
@@ -80,19 +82,13 @@ export default function Cart() {
             </p>
 
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <button
-                className="btn btn-light"
-                onClick={() => updateQty(item.id, item.quantity - 1)}
-              >
+              <button onClick={() => updateQty(item.id, item.quantity - 1)} className="btn btn-light">
                 -
               </button>
 
               <span style={{ fontSize: 16 }}>{item.quantity}</span>
 
-              <button
-                className="btn btn-light"
-                onClick={() => updateQty(item.id, item.quantity + 1)}
-              >
+              <button onClick={() => updateQty(item.id, item.quantity + 1)} className="btn btn-light">
                 +
               </button>
 
@@ -109,12 +105,6 @@ export default function Cart() {
                   fontWeight: 600,
                   transition: "0.2s",
                 }}
-                onMouseOver={(e) =>
-                  (e.target.style.background = "#e04343")
-                }
-                onMouseOut={(e) =>
-                  (e.target.style.background = "#ff4d4d")
-                }
               >
                 Remover
               </button>
@@ -123,7 +113,6 @@ export default function Cart() {
         </div>
       ))}
 
-      {/* BOTÃO FINALIZAR PEDIDO */}
       <button
         onClick={() => (window.location.href = "/checkout")}
         style={{

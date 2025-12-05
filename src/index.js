@@ -3,5 +3,14 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./styles.css";
+import { StoreConfigProvider } from "./context/StoreConfigContext";
+
 const root = createRoot(document.getElementById("root"));
-root.render(<BrowserRouter><App /></BrowserRouter>);
+
+root.render(
+  <BrowserRouter>
+    <StoreConfigProvider>
+      <App />
+    </StoreConfigProvider>
+  </BrowserRouter>
+);
